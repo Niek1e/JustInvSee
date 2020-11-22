@@ -5,10 +5,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class Message {
-	
+
 	/*
-	 * JustInvSee v8.0, a Bukkit plugin to view a player's inventory
-	 * Copyright (C) 2020 Niek1e
+	 * JustInvSee v8.0, a Bukkit plugin to view a player's inventory Copyright (C)
+	 * 2020 Niek1e
 	 * 
 	 * This program is free software; you can redistribute it and/or modify it under
 	 * the terms of the GNU General Public License as published by the Free Software
@@ -31,42 +31,43 @@ public class Message {
 	protected JustInvSee main;
 	protected String content;
 
-	public Message(JustInvSee main, String content) {
+	public Message(JustInvSee main, MessageType messageType) {
 		this.main = main;
-		this.content = constructMessage(content);
+		this.content = constructMessage(messageType);
+	}
+	
+	public Message(JustInvSee main, MessageType messageType, Object additionalInformation) {
+		this.main = main;
+		this.content = constructMessage(messageType, additionalInformation);
 	}
 
-	public Message(JustInvSee main, String content, Player target) {
-		this.main = main;
-		this.content = constructMessage(content, target);
-	}
-
-	public Message(JustInvSee main, String content, boolean newValue) {
-		this.main = main;
-		this.content = constructMessage(content, newValue);
-	}
-
-	private String constructMessage(String content) {
-		String text = this.main.getConfig()
-				.getString("lang." + this.main.getConfig().getString("language") + "." + content);
-		String message = ChatColor.WHITE + "[JustInvSee]" + " " + ChatColor.RED + text;
+	private String constructMessage(MessageType messageType) {
+		String content = messageType.getTextMessage(this.main);
+		String message = ChatColor.WHITE + PREFIX + " " + ChatColor.RED + content;
 		return message;
 	}
 
-	private String constructMessage(String content, Player target) {
-		String text = this.main.getConfig()
-				.getString("lang." + this.main.getConfig().getString("language") + "." + content);
-		String message = ChatColor.WHITE + "[JustInvSee]" + " " + ChatColor.GOLD + target.getName() + " "
-				+ ChatColor.WHITE + text;
-		return message;
-	}
+	private String constructMessage(MessageType messageType, Object additionalInformation) {
+		String content = messageType.getTextMessage(this.main);
+		String message = null;
 
-	private String constructMessage(String content, boolean newValue) {
-		String text = this.main.getConfig()
-				.getString("lang." + this.main.getConfig().getString("language") + "." + content);
-		String message = ChatColor.WHITE + "[JustInvSee]" + " " + ChatColor.WHITE + text + " "
-				+ String.valueOf(newValue);
+		switch (messageType) {
+
+		case SETTING_CHANGED:
+			message = ChatColor.WHITE + PREFIX + " " + content + " " + String.valueOf(additionalInformation);
+			break;
+		case LOOKED_IN_INVENTORY:
+			message = ChatColor.WHITE + PREFIX + " " + ChatColor.GOLD + String.valueOf(additionalInformation) + " "
+					+ ChatColor.WHITE + content;
+			break;
+		default:
+			message = ChatColor.WHITE + PREFIX + " " + content;
+			break;
+
+		}
+
 		return message;
+
 	}
 
 	public void doSend(Player receiver) {

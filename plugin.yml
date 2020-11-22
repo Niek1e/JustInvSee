@@ -3,7 +3,7 @@ description: A simple plugin to see someone's inventory!
 main: me.Niek1e.JustInvSee.JustInvSee
 name: JustInvSee
 api-version: 1.13
-version: 8.0.3
+version: 8.0.4
 commands:
     justinvsee:
       description: Main plugin command.

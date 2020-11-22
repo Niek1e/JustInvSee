@@ -181,23 +181,23 @@ public class JustInvSee extends JavaPlugin implements Listener {
 
 	private boolean isValidPlayer(CommandSender sender, Command command, String[] args) {
 		if (!(sender instanceof Player)) {
-			Message exception = new Message(this, "onlyingame");
+			Message exception = new Message(this, MessageType.PLAYERS_ONLY);
 			exception.doSend(sender);
 			return false;
 		}
 		if (!sender.hasPermission("justinvsee." + command.getName())) {
-			Message exception = new Message(this, "needop");
+			Message exception = new Message(this, MessageType.NO_PERMISSION);
 			exception.doSend(sender);
 			return false;
 		}
 		if (args.length != 1) {
-			Message exception = new Message(this,
-					command.getName().substring(0, command.getName().length() - 3) + "usage");
+			MessageType messageType = MessageType.getMessageTypeByCommand(command.getName());
+			Message exception = new Message(this, messageType);
 			exception.doSend(sender);
 			return false;
 		}
 		if (getTargetPlayer(sender, args[0]) == null) {
-			Message exception = new Message(this, "playernotonline");
+			Message exception = new Message(this, MessageType.PLAYER_NOT_FOUND);
 			exception.doSend(sender);
 			return false;
 		}
@@ -207,13 +207,13 @@ public class JustInvSee extends JavaPlugin implements Listener {
 	private boolean isValidCommand(CommandSender sender, Command command, String[] args) {
 
 		if (!sender.hasPermission("justinvsee.changeconfig")) {
-			Message exception = new Message(this, "needop");
+			Message exception = new Message(this, MessageType.NO_PERMISSION);
 			exception.doSend(sender);
 			return false;
 		}
 
 		if (args.length != 1) {
-			Message exception = new Message(this, "justinvseeusage");
+			Message exception = new Message(this, MessageType.USAGE_JUSTINVSEE);
 			exception.doSend(sender);
 			return false;
 		}
@@ -236,11 +236,11 @@ public class JustInvSee extends JavaPlugin implements Listener {
 
 			if (args[0].equalsIgnoreCase("togglemsg")) {
 				boolean setValue = toggleMessages();
-				Message exception = new Message(this, "messagetoggled", setValue);
+				Message exception = new Message(this, MessageType.SETTING_CHANGED, setValue);
 				exception.doSend(sender);
 				return true;
 			} else {
-				Message exception = new Message(this, "justinvseeusage");
+				Message exception = new Message(this, MessageType.USAGE_JUSTINVSEE);
 				exception.doSend(sender);
 				return true;
 			}
@@ -252,7 +252,7 @@ public class JustInvSee extends JavaPlugin implements Listener {
 		Player targetPlayer = getTargetPlayer(sender, args[0]);
 
 		if (targetPlayer.hasPermission("justinvsee." + label) && getMessageStatus()) {
-			Message notification = new Message(this, "lookedinyourinv", targetPlayer);
+			Message notification = new Message(this, MessageType.LOOKED_IN_INVENTORY, targetPlayer.getName());
 			notification.doSend(targetPlayer);
 		}
 
