@@ -1,9 +1,14 @@
 package me.Niek1e.JustInvSee;
 
+import java.util.ArrayList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Effect;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,8 +29,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class JustInvSee extends JavaPlugin implements Listener {
 
 	/*
-	 * JustInvSee v8.0, a Bukkit plugin to view a player's inventory
-	 * Copyright (C) 2020 Niek1e
+	 * JustInvSee v8.0, a Bukkit plugin to view a player's inventory Copyright (C)
+	 * 2020 Niek1e
 	 * 
 	 * This program is free software; you can redistribute it and/or modify it under
 	 * the terms of the GNU General Public License as published by the Free Software
@@ -58,7 +63,7 @@ public class JustInvSee extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) {
-		
+
 		if (isInOpenViews(e.getView())) {
 
 			if (e.getClickedInventory() != null && e.getClickedInventory().getHolder() instanceof Player) {
@@ -255,10 +260,12 @@ public class JustInvSee extends JavaPlugin implements Listener {
 		if (command.getName().equalsIgnoreCase("enderinv")) {
 			Inventory targetInventory = targetPlayer.getEnderChest();
 			player.openInventory(targetInventory);
+			playEnderchestEffect(player);
 			return true;
 		}
 		if (command.getName().equalsIgnoreCase("armorinv")) {
 			player.openInventory(getArmorInventory(targetPlayer));
+			player.playEffect(targetPlayer.getLocation().add(0, 1, 0), Effect.MOBSPAWNER_FLAMES, null);
 			return true;
 		}
 		return false;
@@ -269,6 +276,52 @@ public class JustInvSee extends JavaPlugin implements Listener {
 		getConfig().set("opmessage", Boolean.valueOf(!value));
 		saveConfig();
 		return !value;
+	}
+
+	private ArrayList<Location> getEnderchestLocations(Chunk[] chunks) {
+		ArrayList<Location> enderchestLocations = new ArrayList<Location>();
+		
+		for(int i = 0; i < chunks.length; i++) {
+			BlockState[] tileEntities = chunks[i].getTileEntities();
+			
+			for (int j = 0; j < tileEntities.length; j++) {
+				if (tileEntities[j].getType().equals(Material.ENDER_CHEST)) {
+					enderchestLocations.add(tileEntities[j].getLocation());
+				}
+			}
+			
+		}
+
+		return enderchestLocations;
+	}
+
+	private void playEnderchestEffect(Player player) {
+		Location playerLocation = player.getLocation();
+		Chunk[] chunks = getSurroundingChunks(playerLocation);
+		ArrayList<Location> enderChests = getEnderchestLocations(chunks);
+
+		for (int i = 0; i < enderChests.size(); i++) {
+			player.playEffect(enderChests.get(i).add(0, 0.5, 0), Effect.MOBSPAWNER_FLAMES, null);
+		}
+	}
+
+	private Chunk[] getSurroundingChunks(Location location) {
+		int chunkX = location.getChunk().getX();
+		int chunkZ = location.getChunk().getZ();
+		Chunk[] chunks = new Chunk[9];
+		chunks[0] = location.getWorld().getChunkAt(chunkX - 1, chunkZ - 1);
+		int i = 0;
+		int x;
+		int z;
+
+		for (x = -1; x < 2; x++) {
+			for (z = -1; z < 2; z++) {
+				chunks[i] = location.getWorld().getChunkAt(chunkX - x, chunkZ - z);
+				i++;
+			}
+		}
+
+		return chunks;
 	}
 
 	private boolean getMessageStatus() {
