@@ -1,4 +1,6 @@
 language: EN
+auto-update: true
+opmessage: true
 
 lang:
   EN:
@@ -9,6 +11,8 @@ lang:
     armorusage: 'Usage: /armorinv <player>'
     playernotonline: That player is not online!
     lookedinyourinv:  is looking in your inventory!
+    messagetoggled: 'The setting has been changed to:'
+    justinvseeusage: 'Usage: /justinvsee <setting>'
   NL:
     needop: Je moet OP zijn voor dit commando!
     onlyingame: Dat commando is alleen voor in-game spelers!
@@ -17,27 +21,35 @@ lang:
     armorusage: 'Doe: /armorinv <player>'
     playernotonline: Die speler is niet online!
     lookedinyourinv:  kijkt in je inventaris!
+    messagetoggled: 'De instelling is aangepast naar:'
+    justinvseeusage: 'Usage: /justinvsee <setting>'
   FR:
-    needop: Vous devez être OP pour cette commande!
+    needop: Vous devez OP pour cette commande!
     onlyingame: Cette commande est seulement pour les joueurs!
     usage: 'Faire: /inv <player>'
     enderusage: 'Faire: /enderinv <player>'
     armorusage: 'Faire: /armorinv <player>'
     playernotonline: Ce joueurs n'est pas en ligne!
     lookedinyourinv:  regarde dans votre inventaire!
+    messagetoggled: 'The setting has been changed to:'
+    justinvseeusage: 'Usage: /justinvsee <setting>'
   DE:
-    needop: Du musst OP sein um diesen Befehl benutzen zu können!
-    onlyingame: Dieser Befehl ist nur für InGame Spieler!
+    needop: Du musst OP sein um diesen Befehl benutzen zu k
+    onlyingame: Dieser Befehl ist nur fInGame Spieler!
     usage: 'Benutzung: /inv <Spieler>'
-    enderusage: 'Benutzung: /enderinv <player>'
-    armorusage: 'Benutzung: /armorinv <player>'
+    enderusage: 'Benutzung: /enderinv <Spieler>'
+    armorusage: 'Benutzung: /armorinv <Spieler>'
     playernotonline: Der Spieler ist nicht online!
     lookedinyourinv:  schaut sich dein Inventar an!
+    messagetoggled: 'The setting has been changed to:'
+    justinvseeusage: 'Usage: /justinvsee <setting>'
   DK:
-    needop: Du skal være OP for at bruge denne komando!
+    needop: Du skal vOP for at bruge denne komando!
     onlyingame: Denne komando er kun for in-game spillere!
     usage: 'Usage: /inv <spiller>'
     enderusage: 'Usage: /enderinv <spiller>'
     armorusage: 'Usage: /armorinv <spiller>'
     playernotonline: Denne spiller er ikke online!
     lookedinyourinv:  kigger i din inventory!
+    messagetoggled: 'The setting has been changed to:'
+    justinvseeusage: 'Usage: /justinvsee <setting>'

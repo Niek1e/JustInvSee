@@ -2,18 +2,27 @@ author: Niek1e and Viktorstrate
 description: A simple plugin to see someone's inventory!
 main: me.Niek1e.JustInvSee.JustInvSee
 name: JustInvSee
-version: 4.1
+api-version: 1.13
+version: 8.0
 commands:
+    justinvsee:
+      description: Main plugin command.
+      usage: /justinvsee <setting>
     inv:
       description: Look in someone's inventory!
+      usage: /inv <player>
     enderinv:
       description: Look in someone's enderchest!
+      usage: /enderinv <player>
     armorinv:
       description: Look up someone's armor!
+      usage: /armorinv <player>
 permissions:
     justinvsee.inv:
       default: op
     justinvsee.enderinv:
       default: op
     justinvsee.armorinv:
+      default: op
+    justinvsee.changeconfig:
       default: op
