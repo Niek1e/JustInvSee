@@ -11,8 +11,10 @@ import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -41,17 +43,36 @@ public class JustInvSee extends JavaPlugin implements Listener {
 	 * 
 	 */
 
+	private InventoryView[] openViews;
+
 	public void onEnable() {
 		saveDefaultConfig();
 		getServer().getPluginManager().registerEvents(this, (Plugin) this);
+		openViews = new InventoryView[0];
 	}
 
 	public void onDisable() {
+		closeAllViews();
 		saveDefaultConfig();
 	}
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) {
+		
+		if (isInOpenViews(e.getView())) {
+
+			if (e.getClickedInventory() != null && e.getClickedInventory().getHolder() instanceof Player) {
+				Player player = (Player) e.getClickedInventory().getHolder();
+
+				Bukkit.getServer().getScheduler().runTaskLater(this, new Runnable() {
+					public void run() {
+						player.updateInventory();
+					}
+				}, 2L);
+
+			}
+		}
+
 		if (e.getView().getTitle().equals("Armor - JustInvSee (C)")) {
 			e.setResult(Result.DENY);
 			return;
@@ -60,10 +81,92 @@ public class JustInvSee extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onInventoryDrag(InventoryDragEvent e) {
+		if (isInOpenViews(e.getView())) {
+
+			if (e.getInventory() != null && e.getInventory().getHolder() instanceof Player) {
+				Player player = (Player) e.getInventory().getHolder();
+
+				Bukkit.getServer().getScheduler().runTaskLater(this, new Runnable() {
+					public void run() {
+						player.updateInventory();
+					}
+				}, 2L);
+
+			}
+		}
+
 		if (e.getView().getTitle().equals("Armor - JustInvSee (C)")) {
 			e.setResult(Result.DENY);
 			return;
 		}
+	}
+
+	@EventHandler
+	public void onInventoryClose(InventoryCloseEvent e) {
+		if (isInOpenViews(e.getView())) {
+			removeOpenView(e.getView());
+		}
+	}
+
+	protected InventoryView[] getOpenViews() {
+		return openViews;
+	}
+
+	private void closeAllViews() {
+		int i;
+
+		for (i = 0; i < getOpenViews().length; i++)
+			getOpenViews()[i].close();
+
+	}
+
+	protected void addOpenView(InventoryView newView) {
+		int n = getOpenViews().length;
+		int i;
+		InventoryView[] newArray = new InventoryView[n + 1];
+
+		for (i = 0; i < getOpenViews().length; i++)
+			newArray[i] = getOpenViews()[i];
+		newArray[n] = newView;
+		openViews = newArray;
+		return;
+	}
+
+	protected void removeOpenView(InventoryView removeView) {
+		int n = getOpenViews().length;
+		int i;
+		int rm = 0;
+
+		for (i = 0; i < getOpenViews().length; i++) {
+			if (getOpenViews()[i].equals(removeView)) {
+				rm = i;
+				break;
+			}
+		}
+
+		InventoryView[] newArray = new InventoryView[n - 1];
+
+		for (i = 0; i < getOpenViews().length; i++) {
+			if (i == rm)
+				continue;
+			newArray[i] = getOpenViews()[i];
+		}
+		openViews = newArray;
+		return;
+	}
+
+	protected boolean isInOpenViews(InventoryView inventoryView) {
+		int i;
+		for (i = 0; i < getOpenViews().length; i++) {
+			if (getOpenViews()[i].equals(inventoryView))
+				return true;
+		}
+		return false;
+	}
+
+	private void doOpenInventory(Player player, Inventory inventory) {
+		InventoryView newView = player.openInventory(inventory);
+		addOpenView(newView);
 	}
 
 	private boolean isValidPlayer(CommandSender sender, Command command, String[] args) {
@@ -145,7 +248,7 @@ public class JustInvSee extends JavaPlugin implements Listener {
 
 		if (command.getName().equalsIgnoreCase("inv")) {
 			PlayerInventory playerInventory = targetPlayer.getInventory();
-			player.openInventory((Inventory) playerInventory);
+			doOpenInventory(player, (Inventory) playerInventory);
 			player.playEffect(targetPlayer.getLocation().add(0, 1, 0), Effect.MOBSPAWNER_FLAMES, null);
 			return true;
 		}
