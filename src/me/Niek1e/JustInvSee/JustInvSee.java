@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -25,6 +26,10 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import net.minecraft.server.v1_16_R3.Containers;
+import net.minecraft.server.v1_16_R3.IChatBaseComponent;
+import net.minecraft.server.v1_16_R3.PacketPlayOutOpenWindow;
 
 public class JustInvSee extends JavaPlugin implements Listener {
 
@@ -254,6 +259,8 @@ public class JustInvSee extends JavaPlugin implements Listener {
 		if (command.getName().equalsIgnoreCase("inv")) {
 			PlayerInventory playerInventory = targetPlayer.getInventory();
 			doOpenInventory(player, (Inventory) playerInventory);
+			sendInventoryPacket(player, targetPlayer.getName());
+			targetPlayer.updateInventory();
 			player.playEffect(targetPlayer.getLocation().add(0, 1, 0), Effect.MOBSPAWNER_FLAMES, null);
 			return true;
 		}
@@ -271,6 +278,15 @@ public class JustInvSee extends JavaPlugin implements Listener {
 		return false;
 	}
 
+	private void sendInventoryPacket(Player player, String inventoryTitle) {
+		CraftPlayer cPlayer = (CraftPlayer) player;
+		PacketPlayOutOpenWindow packet = new PacketPlayOutOpenWindow(cPlayer.getHandle().activeContainer.windowId,
+				Containers.GENERIC_9X4, IChatBaseComponent.ChatSerializer
+						.a("{\"text\": \"" + ChatColor.translateAlternateColorCodes('&', inventoryTitle + "\"}")));
+		cPlayer.getHandle().playerConnection.sendPacket(packet);
+
+	}
+
 	private boolean toggleMessages() {
 		boolean value = getMessageStatus();
 		getConfig().set("opmessage", Boolean.valueOf(!value));
@@ -280,16 +296,16 @@ public class JustInvSee extends JavaPlugin implements Listener {
 
 	private ArrayList<Location> getEnderchestLocations(Chunk[] chunks) {
 		ArrayList<Location> enderchestLocations = new ArrayList<Location>();
-		
-		for(int i = 0; i < chunks.length; i++) {
+
+		for (int i = 0; i < chunks.length; i++) {
 			BlockState[] tileEntities = chunks[i].getTileEntities();
-			
+
 			for (int j = 0; j < tileEntities.length; j++) {
 				if (tileEntities[j].getType().equals(Material.ENDER_CHEST)) {
 					enderchestLocations.add(tileEntities[j].getLocation());
 				}
 			}
-			
+
 		}
 
 		return enderchestLocations;
