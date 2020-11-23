@@ -1,35 +1,24 @@
 package me.Niek1e.JustInvSee;
 
-import java.util.ArrayList;
-
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
-import org.bukkit.Effect;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.minecraft.server.v1_16_R3.Containers;
-import net.minecraft.server.v1_16_R3.IChatBaseComponent;
-import net.minecraft.server.v1_16_R3.PacketPlayOutOpenWindow;
+import me.Niek1e.JustInvSee.JustInventory.Type;
 
 public class JustInvSee extends JavaPlugin implements Listener {
 
@@ -53,56 +42,124 @@ public class JustInvSee extends JavaPlugin implements Listener {
 	 * 
 	 */
 
-	private InventoryView[] openViews;
+	private JustInventoryManager justInventoryManager;
+	private EffectsManager effectsManager;
 
 	public void onEnable() {
 		saveDefaultConfig();
 		getServer().getPluginManager().registerEvents(this, (Plugin) this);
-		openViews = new InventoryView[0];
+		justInventoryManager = new JustInventoryManager();
+		effectsManager = new EffectsManager();
 	}
 
 	public void onDisable() {
-		closeAllViews();
+		justInventoryManager.closeAll();
 		saveDefaultConfig();
 	}
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) {
+		JustInventory justInventory = justInventoryManager.getJustInventory(e.getView());
 
-		if (isInOpenViews(e.getView())) {
-
-			if (e.getClickedInventory() != null && e.getClickedInventory().getHolder() instanceof Player) {
-				Player player = (Player) e.getClickedInventory().getHolder();
-
-				Bukkit.getServer().getScheduler().runTaskLater(this, new Runnable() {
-					public void run() {
-						player.updateInventory();
-					}
-				}, 2L);
-
-			}
+		if (justInventory == null || e.getInventory() == null) {
+			return;
 		}
 
-		if (e.getView().getTitle().equals("Armor - JustInvSee (C)")) {
+		if (justInventory.getJustInventoryType().equals(Type.PLAYER_INVENTORY)) {
+
+			Bukkit.getServer().getScheduler().runTaskLater(this, new Runnable() {
+				public void run() {
+					justInventory.getInventoryOwner().updateInventory();
+				}
+			}, 2L);
+
+		}
+
+		if (justInventory.getInventoryView().getTitle().equals("Armor - JustInvSee (C)")) {
+			
+
+			if (e.getCurrentItem() == null || !e.getClick().equals(ClickType.LEFT)) {
+				e.setResult(Result.DENY);
+				return;
+			}
+
+			if (!e.getCurrentItem().isSimilar(justInventory.getRemoveStack())) {
+				e.setResult(Result.DENY);
+				return;
+			}
+
+			if (!e.getClickedInventory().equals(justInventory.getInventory())) {
+				e.setResult(Result.DENY);
+				return;
+			}
+			
+			removeItem(justInventory, e.getSlot() - 9);
+			e.getWhoClicked().closeInventory();	
+			JustInventory armorInventory = new JustInventory(Type.ARMOR_INVENTORY, justInventory.getInventoryOwner(),
+					justInventoryManager);
+			armorInventory.openInventory((Player) e.getWhoClicked(), effectsManager);
+			
 			e.setResult(Result.DENY);
-			return;
+		}
+	}
+
+	private void removeItem(JustInventory justInventory, int actualSlot) {
+
+		Inventory inventory = justInventory.getInventory();
+		ItemStack item = inventory.getItem(actualSlot);
+		EntityEquipment equipment = justInventory.getInventoryOwner().getEquipment();
+		ItemStack air = new ItemStack(Material.AIR);
+		boolean relevant = false;
+
+		switch (actualSlot) {
+		case 1:
+			if (equipment.getHelmet() != null && equipment.getHelmet().isSimilar(item))
+				relevant = true;
+			if (relevant)
+				equipment.setHelmet(air);
+			break;
+		case 2:
+			if (equipment.getChestplate() != null && equipment.getChestplate().isSimilar(item))
+				relevant = true;
+			if (relevant)
+				equipment.setChestplate(air);
+			break;
+		case 3:
+			if (equipment.getLeggings() != null && equipment.getLeggings().isSimilar(item))
+				relevant = true;
+			if (relevant)
+				equipment.setLeggings(air);
+			break;
+		case 4:
+			if (equipment.getBoots() != null && equipment.getBoots().isSimilar(item))
+				relevant = true;
+			if (relevant)
+				equipment.setBoots(air);
+			break;
+		case 7:
+			if (equipment.getItemInOffHand() != null && equipment.getItemInOffHand().isSimilar(item))
+				relevant = true;
+			if (relevant)
+				equipment.setItemInOffHand(air);
+			break;
 		}
 	}
 
 	@EventHandler
 	public void onInventoryDrag(InventoryDragEvent e) {
-		if (isInOpenViews(e.getView())) {
+		JustInventory justInventory = justInventoryManager.getJustInventory(e.getView());
 
-			if (e.getInventory() != null && e.getInventory().getHolder() instanceof Player) {
-				Player player = (Player) e.getInventory().getHolder();
+		if (justInventory == null || e.getInventory() == null)
+			return;
 
-				Bukkit.getServer().getScheduler().runTaskLater(this, new Runnable() {
-					public void run() {
-						player.updateInventory();
-					}
-				}, 2L);
+		if (justInventory.getJustInventoryType().equals(Type.PLAYER_INVENTORY)) {
 
-			}
+			Bukkit.getServer().getScheduler().runTaskLater(this, new Runnable() {
+				public void run() {
+					justInventory.getInventoryOwner().updateInventory();
+				}
+			}, 2L);
+
 		}
 
 		if (e.getView().getTitle().equals("Armor - JustInvSee (C)")) {
@@ -113,70 +170,11 @@ public class JustInvSee extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent e) {
-		if (isInOpenViews(e.getView())) {
-			removeOpenView(e.getView());
-		}
-	}
+		JustInventory justInventory = justInventoryManager.getJustInventory(e.getView());
 
-	protected InventoryView[] getOpenViews() {
-		return openViews;
-	}
+		if (justInventory != null)
+			justInventoryManager.remove(justInventory);
 
-	private void closeAllViews() {
-		int i;
-
-		for (i = 0; i < getOpenViews().length; i++)
-			getOpenViews()[i].close();
-
-	}
-
-	protected void addOpenView(InventoryView newView) {
-		int n = getOpenViews().length;
-		int i;
-		InventoryView[] newArray = new InventoryView[n + 1];
-
-		for (i = 0; i < getOpenViews().length; i++)
-			newArray[i] = getOpenViews()[i];
-		newArray[n] = newView;
-		openViews = newArray;
-		return;
-	}
-
-	protected void removeOpenView(InventoryView removeView) {
-		int n = getOpenViews().length;
-		int i;
-		int rm = 0;
-
-		for (i = 0; i < getOpenViews().length; i++) {
-			if (getOpenViews()[i].equals(removeView)) {
-				rm = i;
-				break;
-			}
-		}
-
-		InventoryView[] newArray = new InventoryView[n - 1];
-
-		for (i = 0; i < getOpenViews().length; i++) {
-			if (i == rm)
-				continue;
-			newArray[i] = getOpenViews()[i];
-		}
-		openViews = newArray;
-		return;
-	}
-
-	protected boolean isInOpenViews(InventoryView inventoryView) {
-		int i;
-		for (i = 0; i < getOpenViews().length; i++) {
-			if (getOpenViews()[i].equals(inventoryView))
-				return true;
-		}
-		return false;
-	}
-
-	private void doOpenInventory(Player player, Inventory inventory) {
-		InventoryView newView = player.openInventory(inventory);
-		addOpenView(newView);
 	}
 
 	private boolean isValidPlayer(CommandSender sender, Command command, String[] args) {
@@ -257,34 +255,22 @@ public class JustInvSee extends JavaPlugin implements Listener {
 		}
 
 		if (command.getName().equalsIgnoreCase("inv")) {
-			PlayerInventory playerInventory = targetPlayer.getInventory();
-			doOpenInventory(player, (Inventory) playerInventory);
-			sendInventoryPacket(player, targetPlayer.getName());
-			targetPlayer.updateInventory();
-			player.playEffect(targetPlayer.getLocation().add(0, 1, 0), Effect.MOBSPAWNER_FLAMES, null);
+			JustInventory playerInventory = new JustInventory(Type.PLAYER_INVENTORY, targetPlayer,
+					justInventoryManager);
+			playerInventory.openInventory(player, effectsManager);
 			return true;
 		}
 		if (command.getName().equalsIgnoreCase("enderinv")) {
-			Inventory targetInventory = targetPlayer.getEnderChest();
-			player.openInventory(targetInventory);
-			playEnderchestEffect(player);
+			JustInventory enderInventory = new JustInventory(Type.ENDER_INVENTORY, targetPlayer, justInventoryManager);
+			enderInventory.openInventory(player, effectsManager);
 			return true;
 		}
 		if (command.getName().equalsIgnoreCase("armorinv")) {
-			player.openInventory(getArmorInventory(targetPlayer));
-			player.playEffect(targetPlayer.getLocation().add(0, 1, 0), Effect.MOBSPAWNER_FLAMES, null);
+			JustInventory armorInventory = new JustInventory(Type.ARMOR_INVENTORY, targetPlayer, justInventoryManager);
+			armorInventory.openInventory(player, effectsManager);
 			return true;
 		}
 		return false;
-	}
-
-	private void sendInventoryPacket(Player player, String inventoryTitle) {
-		CraftPlayer cPlayer = (CraftPlayer) player;
-		PacketPlayOutOpenWindow packet = new PacketPlayOutOpenWindow(cPlayer.getHandle().activeContainer.windowId,
-				Containers.GENERIC_9X4, IChatBaseComponent.ChatSerializer
-						.a("{\"text\": \"" + ChatColor.translateAlternateColorCodes('&', inventoryTitle + "\"}")));
-		cPlayer.getHandle().playerConnection.sendPacket(packet);
-
 	}
 
 	private boolean toggleMessages() {
@@ -294,77 +280,8 @@ public class JustInvSee extends JavaPlugin implements Listener {
 		return !value;
 	}
 
-	private ArrayList<Location> getEnderchestLocations(Chunk[] chunks) {
-		ArrayList<Location> enderchestLocations = new ArrayList<Location>();
-
-		for (int i = 0; i < chunks.length; i++) {
-			BlockState[] tileEntities = chunks[i].getTileEntities();
-
-			for (int j = 0; j < tileEntities.length; j++) {
-				if (tileEntities[j].getType().equals(Material.ENDER_CHEST)) {
-					enderchestLocations.add(tileEntities[j].getLocation());
-				}
-			}
-
-		}
-
-		return enderchestLocations;
-	}
-
-	private void playEnderchestEffect(Player player) {
-		Location playerLocation = player.getLocation();
-		Chunk[] chunks = getSurroundingChunks(playerLocation);
-		ArrayList<Location> enderChests = getEnderchestLocations(chunks);
-
-		for (int i = 0; i < enderChests.size(); i++) {
-			player.playEffect(enderChests.get(i).add(0, 0.5, 0), Effect.MOBSPAWNER_FLAMES, null);
-		}
-	}
-
-	private Chunk[] getSurroundingChunks(Location location) {
-		int chunkX = location.getChunk().getX();
-		int chunkZ = location.getChunk().getZ();
-		Chunk[] chunks = new Chunk[9];
-		chunks[0] = location.getWorld().getChunkAt(chunkX - 1, chunkZ - 1);
-		int i = 0;
-		int x;
-		int z;
-
-		for (x = -1; x < 2; x++) {
-			for (z = -1; z < 2; z++) {
-				chunks[i] = location.getWorld().getChunkAt(chunkX - x, chunkZ - z);
-				i++;
-			}
-		}
-
-		return chunks;
-	}
-
 	private boolean getMessageStatus() {
 		return getConfig().getBoolean("opmessage");
-	}
-
-	private ItemStack getGlassPane(String name) {
-		ItemStack i = new ItemStack(Material.WHITE_STAINED_GLASS_PANE, 1);
-		ItemMeta im = i.getItemMeta();
-		im.setDisplayName(name);
-		i.setItemMeta(im);
-		return i;
-	}
-
-	private Inventory getArmorInventory(Player targetPlayer) {
-		Inventory armorInventory = Bukkit.getServer().createInventory(null, 9, "Armor - JustInvSee (C)");
-		ItemStack overig = getGlassPane(ChatColor.RED + "[]");
-		armorInventory.setItem(0, overig);
-		armorInventory.setItem(1, targetPlayer.getEquipment().getHelmet());
-		armorInventory.setItem(2, targetPlayer.getEquipment().getChestplate());
-		armorInventory.setItem(3, targetPlayer.getEquipment().getLeggings());
-		armorInventory.setItem(4, targetPlayer.getEquipment().getBoots());
-		armorInventory.setItem(5, overig);
-		armorInventory.setItem(6, overig);
-		armorInventory.setItem(7, targetPlayer.getEquipment().getItemInOffHand());
-		armorInventory.setItem(8, overig);
-		return armorInventory;
 	}
 
 }
