@@ -1,4 +1,4 @@
-package me.Niek1e.JustInvSee;
+package me.Niek1e.JustInvSee.Message;
 
 import org.bukkit.plugin.Plugin;
 

@@ -2,6 +2,10 @@ package me.Niek1e.JustInvSee;
 
 import org.bukkit.inventory.InventoryView;
 
+import me.Niek1e.JustInvSee.JustInventory.JustArmorInventory;
+import me.Niek1e.JustInvSee.JustInventory.JustInventory;
+import me.Niek1e.JustInvSee.JustInventory.JustInventory.Type;
+
 public class JustInventoryManager {
 
 	private JustInventory[] allJustInventories;
@@ -17,15 +21,24 @@ public class JustInventoryManager {
 	public void remove(JustInventory justInventory) {
 		removeFromList(justInventory);
 	}
-	
+
 	public void closeAll() {
 		closeAllInventoryViews();
 	}
-	
+
 	public JustInventory getJustInventory(InventoryView inventoryView) {
 		for (int i = 0; i < allJustInventories.length; i++) {
 			if (allJustInventories[i].getInventoryView().equals(inventoryView))
 				return allJustInventories[i];
+		}
+		return null;
+	}
+
+	public JustArmorInventory getJustArmorInventory(InventoryView inventoryView) {
+		for (int i = 0; i < allJustInventories.length; i++) {
+			if (allJustInventories[i].getInventoryView().equals(inventoryView)
+					&& allJustInventories[i].getJustInventoryType().equals(Type.ARMOR_INVENTORY))
+				return (JustArmorInventory) allJustInventories[i];
 		}
 		return null;
 	}
@@ -59,13 +72,15 @@ public class JustInventoryManager {
 				continue;
 			newArray[i] = allJustInventories[i];
 		}
-		
+
 		allJustInventories = newArray;
 	}
-	
+
 	private void closeAllInventoryViews() {
-		for (int i = 0; i < allJustInventories.length; i++)
-			allJustInventories[i].getInventoryView().close();
+		for (int i = 0; i < allJustInventories.length; i++) {
+			if(allJustInventories[i].getInventoryView() != null)
+				allJustInventories[i].getInventoryView().close();
+		}
 	}
 
 }

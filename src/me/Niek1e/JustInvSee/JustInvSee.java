@@ -1,7 +1,6 @@
 package me.Niek1e.JustInvSee;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -12,13 +11,15 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.Niek1e.JustInvSee.JustInventory.Type;
+import me.Niek1e.JustInvSee.JustInventory.JustArmorInventory;
+import me.Niek1e.JustInvSee.JustInventory.JustEnderInventory;
+import me.Niek1e.JustInvSee.JustInventory.JustInventory;
+import me.Niek1e.JustInvSee.JustInventory.JustPlayerInventory;
+import me.Niek1e.JustInvSee.Message.Message;
+import me.Niek1e.JustInvSee.Message.MessageType;
 
 public class JustInvSee extends JavaPlugin implements Listener {
 
@@ -65,7 +66,7 @@ public class JustInvSee extends JavaPlugin implements Listener {
 			return;
 		}
 
-		if (justInventory.getJustInventoryType().equals(Type.PLAYER_INVENTORY)) {
+		if (justInventory instanceof JustPlayerInventory) {
 
 			Bukkit.getServer().getScheduler().runTaskLater(this, new Runnable() {
 				public void run() {
@@ -75,15 +76,15 @@ public class JustInvSee extends JavaPlugin implements Listener {
 
 		}
 
-		if (justInventory.getInventoryView().getTitle().equals("Armor - JustInvSee (C)")) {
-			
+		if (justInventory instanceof JustArmorInventory) {
+			JustArmorInventory justArmorInventory = (JustArmorInventory) justInventory;
 
 			if (e.getCurrentItem() == null || !e.getClick().equals(ClickType.LEFT)) {
 				e.setResult(Result.DENY);
 				return;
 			}
 
-			if (!e.getCurrentItem().isSimilar(justInventory.getRemoveStack())) {
+			if (!justArmorInventory.checkRemoveStack(e.getCurrentItem())) {
 				e.setResult(Result.DENY);
 				return;
 			}
@@ -92,56 +93,12 @@ public class JustInvSee extends JavaPlugin implements Listener {
 				e.setResult(Result.DENY);
 				return;
 			}
-			
-			removeItem(justInventory, e.getSlot() - 9);
-			e.getWhoClicked().closeInventory();	
-			JustInventory armorInventory = new JustInventory(Type.ARMOR_INVENTORY, justInventory.getInventoryOwner(),
-					justInventoryManager);
-			armorInventory.openInventory((Player) e.getWhoClicked(), effectsManager);
-			
+
+			e.getWhoClicked().closeInventory();
+			JustArmorInventory newArmorInventory = justArmorInventory.getUpdatedInventory(e.getSlot() - 9);
+			newArmorInventory.openInventory((Player) e.getWhoClicked());
+
 			e.setResult(Result.DENY);
-		}
-	}
-
-	private void removeItem(JustInventory justInventory, int actualSlot) {
-
-		Inventory inventory = justInventory.getInventory();
-		ItemStack item = inventory.getItem(actualSlot);
-		EntityEquipment equipment = justInventory.getInventoryOwner().getEquipment();
-		ItemStack air = new ItemStack(Material.AIR);
-		boolean relevant = false;
-
-		switch (actualSlot) {
-		case 1:
-			if (equipment.getHelmet() != null && equipment.getHelmet().isSimilar(item))
-				relevant = true;
-			if (relevant)
-				equipment.setHelmet(air);
-			break;
-		case 2:
-			if (equipment.getChestplate() != null && equipment.getChestplate().isSimilar(item))
-				relevant = true;
-			if (relevant)
-				equipment.setChestplate(air);
-			break;
-		case 3:
-			if (equipment.getLeggings() != null && equipment.getLeggings().isSimilar(item))
-				relevant = true;
-			if (relevant)
-				equipment.setLeggings(air);
-			break;
-		case 4:
-			if (equipment.getBoots() != null && equipment.getBoots().isSimilar(item))
-				relevant = true;
-			if (relevant)
-				equipment.setBoots(air);
-			break;
-		case 7:
-			if (equipment.getItemInOffHand() != null && equipment.getItemInOffHand().isSimilar(item))
-				relevant = true;
-			if (relevant)
-				equipment.setItemInOffHand(air);
-			break;
 		}
 	}
 
@@ -152,7 +109,7 @@ public class JustInvSee extends JavaPlugin implements Listener {
 		if (justInventory == null || e.getInventory() == null)
 			return;
 
-		if (justInventory.getJustInventoryType().equals(Type.PLAYER_INVENTORY)) {
+		if (justInventory instanceof JustPlayerInventory) {
 
 			Bukkit.getServer().getScheduler().runTaskLater(this, new Runnable() {
 				public void run() {
@@ -162,7 +119,7 @@ public class JustInvSee extends JavaPlugin implements Listener {
 
 		}
 
-		if (e.getView().getTitle().equals("Armor - JustInvSee (C)")) {
+		if (justInventory instanceof JustArmorInventory) {
 			e.setResult(Result.DENY);
 			return;
 		}
@@ -255,18 +212,17 @@ public class JustInvSee extends JavaPlugin implements Listener {
 		}
 
 		if (command.getName().equalsIgnoreCase("inv")) {
-			JustInventory playerInventory = new JustInventory(Type.PLAYER_INVENTORY, targetPlayer,
-					justInventoryManager);
+			JustPlayerInventory playerInventory = new JustPlayerInventory(targetPlayer, justInventoryManager);
 			playerInventory.openInventory(player, effectsManager);
 			return true;
 		}
 		if (command.getName().equalsIgnoreCase("enderinv")) {
-			JustInventory enderInventory = new JustInventory(Type.ENDER_INVENTORY, targetPlayer, justInventoryManager);
+			JustEnderInventory enderInventory = new JustEnderInventory(targetPlayer, justInventoryManager);
 			enderInventory.openInventory(player, effectsManager);
 			return true;
 		}
 		if (command.getName().equalsIgnoreCase("armorinv")) {
-			JustInventory armorInventory = new JustInventory(Type.ARMOR_INVENTORY, targetPlayer, justInventoryManager);
+			JustArmorInventory armorInventory = new JustArmorInventory(targetPlayer, justInventoryManager);
 			armorInventory.openInventory(player, effectsManager);
 			return true;
 		}
