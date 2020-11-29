@@ -1,10 +1,14 @@
-package me.Niek1e.JustInvSee;
+package me.niek1e.justinvsee;
 
+import java.util.Arrays;
+
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryView;
 
-import me.Niek1e.JustInvSee.JustInventory.JustArmorInventory;
-import me.Niek1e.JustInvSee.JustInventory.JustInventory;
-import me.Niek1e.JustInvSee.JustInventory.JustInventory.Type;
+import me.niek1e.justinvsee.justinventory.JustArmorInventory;
+import me.niek1e.justinvsee.justinventory.JustInventory;
+import me.niek1e.justinvsee.message.Message;
+import me.niek1e.justinvsee.message.MessageType;
 
 public class JustInventoryManager {
 
@@ -26,6 +30,10 @@ public class JustInventoryManager {
 		closeAllInventoryViews();
 	}
 
+	public void closeByPlayer(JustInvSee main, Player player) {
+		closeAllInventoryViews(main, player);
+	}
+
 	public JustInventory getJustInventory(InventoryView inventoryView) {
 		for (int i = 0; i < allJustInventories.length; i++) {
 			if (allJustInventories[i].getInventoryView().equals(inventoryView))
@@ -37,7 +45,7 @@ public class JustInventoryManager {
 	public JustArmorInventory getJustArmorInventory(InventoryView inventoryView) {
 		for (int i = 0; i < allJustInventories.length; i++) {
 			if (allJustInventories[i].getInventoryView().equals(inventoryView)
-					&& allJustInventories[i].getJustInventoryType().equals(Type.ARMOR_INVENTORY))
+					&& allJustInventories[i] instanceof JustArmorInventory)
 				return (JustArmorInventory) allJustInventories[i];
 		}
 		return null;
@@ -45,10 +53,7 @@ public class JustInventoryManager {
 
 	private void addToList(JustInventory justInventory) {
 		int n = allJustInventories.length;
-		JustInventory[] newArray = new JustInventory[n + 1];
-
-		for (int i = 0; i < n; i++)
-			newArray[i] = allJustInventories[i];
+		JustInventory[] newArray = Arrays.copyOf(allJustInventories, n + 1);
 
 		newArray[n] = justInventory;
 		allJustInventories = newArray;
@@ -78,8 +83,19 @@ public class JustInventoryManager {
 
 	private void closeAllInventoryViews() {
 		for (int i = 0; i < allJustInventories.length; i++) {
-			if(allJustInventories[i].getInventoryView() != null)
+			if (allJustInventories[i].getInventoryView() != null)
 				allJustInventories[i].getInventoryView().close();
+		}
+	}
+
+	private void closeAllInventoryViews(JustInvSee main, Player player) {
+		for (int i = 0; i < allJustInventories.length; i++) {
+			if (allJustInventories[i].getInventoryView() != null
+					&& allJustInventories[i].getInventoryOwner().equals(player)) {
+				Message exception = new Message(main, MessageType.PLAYER_LEFT);
+				exception.doSend(allJustInventories[i].getInventoryViewer());
+				allJustInventories[i].getInventoryView().close();
+			}
 		}
 	}
 

@@ -1,4 +1,4 @@
-package me.Niek1e.JustInvSee.JustInventory;
+package me.niek1e.justinvsee.justinventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -9,13 +9,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import me.Niek1e.JustInvSee.EffectsManager;
-import me.Niek1e.JustInvSee.JustInventoryManager;
+import me.niek1e.justinvsee.EffectsManager;
+import me.niek1e.justinvsee.JustInventoryManager;
 
 public class JustArmorInventory extends JustInventory {
 
 	public JustArmorInventory(Player targetPlayer, JustInventoryManager justInventoryManager) {
-		super(Type.ARMOR_INVENTORY, targetPlayer, justInventoryManager);
+		super(targetPlayer, justInventoryManager);
 	}
 
 	public JustArmorInventory getUpdatedInventory(int actualSlot) {
@@ -24,9 +24,7 @@ public class JustArmorInventory extends JustInventory {
 
 	private JustArmorInventory createUpdatedInventory(int actualSlot) {
 		processUpdate(actualSlot);
-		JustArmorInventory updatedInventory = new JustArmorInventory(this.getInventoryOwner(),
-				this.getJustInventoryManager());
-		return updatedInventory;
+		return new JustArmorInventory(this.getInventoryOwner(), this.getJustInventoryManager());
 	}
 
 	private void processUpdate(int actualSlot) {
@@ -52,7 +50,7 @@ public class JustArmorInventory extends JustInventory {
 				equipment.setBoots(air);
 			break;
 		case 7:
-			if (equipment.getItemInOffHand() != null && equipment.getItemInOffHand().isSimilar(item))
+			if (equipment.getItemInOffHand().isSimilar(item))
 				equipment.setItemInOffHand(air);
 			break;
 		}
@@ -110,9 +108,10 @@ public class JustArmorInventory extends JustInventory {
 		if (this.getInventoryView() != null)
 			return;
 
+		this.setInventoryViewer(player);
 		this.setInventoryView(player.openInventory(this.getInventory()));
-		effectsManager.playEffects(player, this.getInventoryOwner());
-		
+		effectsManager.playPlayerEffects(player, this.getInventoryOwner());
+
 		this.getJustInventoryManager().add(this);
 	}
 
@@ -121,8 +120,9 @@ public class JustArmorInventory extends JustInventory {
 		if (this.getInventoryView() != null)
 			return;
 
+		this.setInventoryViewer(player);
 		this.setInventoryView(player.openInventory(this.getInventory()));
-		
+
 		this.getJustInventoryManager().add(this);
 	}
 

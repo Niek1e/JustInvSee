@@ -1,4 +1,4 @@
-package me.Niek1e.JustInvSee;
+package me.niek1e.justinvsee;
 
 import java.util.ArrayList;
 
@@ -11,20 +11,16 @@ import org.bukkit.entity.Player;
 
 public class EffectsManager {
 	
-	public EffectsManager() {
-		
+	public void playEnderchestEffects(Player player) {
+		createEnderChestEffects(player);
 	}
 	
-	public void playEffects(Player player) {
-		playEnderChestEffects(player);
-	}
-	
-	public void playEffects(Player player, Player targetPlayer) {
+	public void playPlayerEffects(Player player, Player targetPlayer) {
 		Location location = targetPlayer.getLocation().add(0, 0.5, 0);
 		playPlayerEffects(player, location);
 	}
 	
-	private void playEnderChestEffects(Player player) {
+	private void createEnderChestEffects(Player player) {
 		Location playerLocation = player.getLocation();
 		Chunk[] chunks = getSurroundingChunks(playerLocation);
 		ArrayList<Location> enderChests = getEnderchestLocations(chunks);
@@ -56,7 +52,7 @@ public class EffectsManager {
 	}
 	
 	private ArrayList<Location> getEnderchestLocations(Chunk[] chunks) {
-		ArrayList<Location> enderchestLocations = new ArrayList<Location>();
+		ArrayList<Location> enderchestLocations = new ArrayList<>();
 
 		for (int i = 0; i < chunks.length; i++) {
 			BlockState[] tileEntities = chunks[i].getTileEntities();

@@ -1,31 +1,27 @@
-package me.Niek1e.JustInvSee.JustInventory;
+package me.niek1e.justinvsee.justinventory;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 
-import me.Niek1e.JustInvSee.EffectsManager;
-import me.Niek1e.JustInvSee.JustInventoryManager;
+import me.niek1e.justinvsee.EffectsManager;
+import me.niek1e.justinvsee.JustInventoryManager;
 
 public abstract class JustInventory {
 
-	public enum Type {
-		PLAYER_INVENTORY, ENDER_INVENTORY, ARMOR_INVENTORY;
-	}
-
 	private Player inventoryOwner;
+	private Player inventoryViewer;
 	private Inventory inventory;
 	private InventoryView inventoryView;
-	private Type justInventoryType;
 	private JustInventoryManager justInventoryManager;
 
 	protected abstract Inventory createInventory();
 	protected abstract void openInventory(Player player, EffectsManager effectsManager);
 	protected abstract void openInventory(Player player);
 
-	protected JustInventory(Type justInventoryType, Player targetPlayer, JustInventoryManager justInventoryManager) {
-		this.justInventoryType = justInventoryType;
+	protected JustInventory(Player targetPlayer, JustInventoryManager justInventoryManager) {
 		this.inventoryOwner = targetPlayer;
+		this.inventoryViewer = null;
 		this.inventoryView = null;
 		this.inventory = createInventory();
 		this.justInventoryManager = justInventoryManager;
@@ -33,6 +29,14 @@ public abstract class JustInventory {
 
 	public Player getInventoryOwner() {
 		return this.inventoryOwner;
+	}
+	
+	public Player getInventoryViewer() {
+		return this.inventoryViewer;
+	}
+	
+	public void setInventoryViewer(Player player) {
+		this.inventoryViewer = player;
 	}
 
 	public Inventory getInventory() {
@@ -45,10 +49,6 @@ public abstract class JustInventory {
 	
 	public void setInventoryView(InventoryView newView) {
 		this.inventoryView = newView;
-	}
-
-	public Type getJustInventoryType() {
-		return this.justInventoryType;
 	}
 
 	protected JustInventoryManager getJustInventoryManager() {

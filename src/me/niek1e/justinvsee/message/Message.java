@@ -1,10 +1,10 @@
-package me.Niek1e.JustInvSee.Message;
+package me.niek1e.justinvsee.message;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import me.Niek1e.JustInvSee.JustInvSee;
+import me.niek1e.justinvsee.JustInvSee;
 
 public class Message {
 
@@ -28,7 +28,7 @@ public class Message {
 	 * 
 	 */
 
-	protected final String PREFIX = "[JustInvSee]";
+	protected static final String PREFIX = "[JustInvSee]";
 
 	protected JustInvSee main;
 	protected String content;
@@ -38,28 +38,31 @@ public class Message {
 		this.content = constructMessage(messageType);
 	}
 	
-	public Message(JustInvSee main, MessageType messageType, Object additionalInformation) {
+	public Message(JustInvSee main, MessageType messageType, String additionalInformation) {
 		this.main = main;
 		this.content = constructMessage(messageType, additionalInformation);
 	}
 
 	private String constructMessage(MessageType messageType) {
 		String content = messageType.getTextMessage(this.main);
-		String message = ChatColor.WHITE + PREFIX + " " + ChatColor.RED + content;
-		return message;
+		return ChatColor.WHITE + PREFIX + " " + ChatColor.RED + content;
 	}
 
-	private String constructMessage(MessageType messageType, Object additionalInformation) {
+	private String constructMessage(MessageType messageType, String additionalInformation) {
 		String content = messageType.getTextMessage(this.main);
 		String message = null;
 
 		switch (messageType) {
 
 		case SETTING_CHANGED:
-			message = ChatColor.WHITE + PREFIX + " " + content + " " + String.valueOf(additionalInformation);
+			message = ChatColor.WHITE + PREFIX + " " + content + " " + additionalInformation;
 			break;
 		case LOOKED_IN_INVENTORY:
-			message = ChatColor.WHITE + PREFIX + " " + ChatColor.GOLD + String.valueOf(additionalInformation) + " "
+			message = ChatColor.WHITE + PREFIX + " " + ChatColor.GOLD + additionalInformation + " "
+					+ ChatColor.WHITE + content;
+			break;
+		case PLAYER_LEFT:
+			message = ChatColor.WHITE + PREFIX + " " + ChatColor.GOLD + additionalInformation + " "
 					+ ChatColor.WHITE + content;
 			break;
 		default:

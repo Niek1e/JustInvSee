@@ -1,15 +1,15 @@
-package me.Niek1e.JustInvSee.JustInventory;
+package me.niek1e.justinvsee.justinventory;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import me.Niek1e.JustInvSee.EffectsManager;
-import me.Niek1e.JustInvSee.JustInventoryManager;
+import me.niek1e.justinvsee.EffectsManager;
+import me.niek1e.justinvsee.JustInventoryManager;
 
 public class JustEnderInventory extends JustInventory {
 
 	public JustEnderInventory(Player targetPlayer, JustInventoryManager justInventoryManager) {
-		super(Type.ENDER_INVENTORY, targetPlayer, justInventoryManager);
+		super(targetPlayer, justInventoryManager);
 	}
 
 	@Override
@@ -22,8 +22,9 @@ public class JustEnderInventory extends JustInventory {
 		if (this.getInventoryView() != null)
 			return;
 
+		this.setInventoryViewer(player);
 		this.setInventoryView(player.openInventory(this.getInventory()));
-		effectsManager.playEffects(player);
+		effectsManager.playEnderchestEffects(player);
 		this.getJustInventoryManager().add(this);
 		
 	}
@@ -33,6 +34,7 @@ public class JustEnderInventory extends JustInventory {
 		if (this.getInventoryView() != null)
 			return;
 
+		this.setInventoryViewer(player);
 		this.setInventoryView(player.openInventory(this.getInventory()));
 		this.getJustInventoryManager().add(this);
 	}

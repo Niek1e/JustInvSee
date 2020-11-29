@@ -1,12 +1,12 @@
-package me.Niek1e.JustInvSee.JustInventory;
+package me.niek1e.justinvsee.justinventory;
 
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import me.Niek1e.JustInvSee.EffectsManager;
-import me.Niek1e.JustInvSee.JustInventoryManager;
+import me.niek1e.justinvsee.EffectsManager;
+import me.niek1e.justinvsee.JustInventoryManager;
 import net.minecraft.server.v1_16_R3.Containers;
 import net.minecraft.server.v1_16_R3.IChatBaseComponent;
 import net.minecraft.server.v1_16_R3.PacketPlayOutOpenWindow;
@@ -14,7 +14,7 @@ import net.minecraft.server.v1_16_R3.PacketPlayOutOpenWindow;
 public class JustPlayerInventory extends JustInventory {
 
 	public JustPlayerInventory(Player targetPlayer, JustInventoryManager justInventoryManager) {
-		super(Type.PLAYER_INVENTORY, targetPlayer, justInventoryManager);
+		super(targetPlayer, justInventoryManager);
 	}
 	
 	private void sendInventoryPacket(Player player) {
@@ -37,9 +37,10 @@ public class JustPlayerInventory extends JustInventory {
 		if (this.getInventoryView() != null)
 			return;
 
+		this.setInventoryViewer(player);
 		this.setInventoryView(player.openInventory(this.getInventory()));
 		sendInventoryPacket(player);
-		effectsManager.playEffects(player, this.getInventoryOwner());
+		effectsManager.playPlayerEffects(player, this.getInventoryOwner());
 		
 		this.getInventoryOwner().updateInventory();
 		this.getJustInventoryManager().add(this);
@@ -49,7 +50,8 @@ public class JustPlayerInventory extends JustInventory {
 	public void openInventory(Player player) {
 		if (this.getInventoryView() != null)
 			return;
-
+		
+		this.setInventoryViewer(player);
 		this.setInventoryView(player.openInventory(this.getInventory()));
 		sendInventoryPacket(player);
 		
