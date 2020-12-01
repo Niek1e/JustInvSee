@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import me.niek1e.justinvsee.EffectsManager;
@@ -29,7 +30,7 @@ public class JustArmorInventory extends JustInventory {
 
 	private void processUpdate(int actualSlot) {
 		ItemStack item = this.getInventory().getItem(actualSlot);
-		EntityEquipment equipment = this.getInventoryOwner().getEquipment();
+		PlayerInventory equipment = this.getInventoryOwner().getInventory();
 		ItemStack air = new ItemStack(Material.AIR);
 
 		switch (actualSlot) {
