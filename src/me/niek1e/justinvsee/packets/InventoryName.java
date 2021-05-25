@@ -31,8 +31,12 @@ public abstract class InventoryName {
 		} catch (ArrayIndexOutOfBoundsException whatVersionAreYouUsingException) {
 			return null;
 		}
-
-		if (version.equals("v1_16_R1")) {
+		
+		if (version.equals("v1_14_R1")) {
+			return new InventoryName_1_14_R1(player, targetPlayer);
+		} else if (version.equals("v1_15_R1")) {
+			return new InventoryName_1_15_R1(player, targetPlayer);
+		} else if (version.equals("v1_16_R1")) {
 			return new InventoryName_1_16_R1(player, targetPlayer);
 		} else if (version.equals("v1_16_R2")) {
 			return new InventoryName_1_16_R2(player, targetPlayer);

@@ -2,7 +2,7 @@ author: Niek1e and Viktorstrate
 description: A simple plugin to see someone's inventory!
 main: me.niek1e.justinvsee.JustInvSee
 name: JustInvSee
-api-version: 1.16
+api-version: 1.14
 version: 8.0.5.4
 commands:
     justinvsee:
