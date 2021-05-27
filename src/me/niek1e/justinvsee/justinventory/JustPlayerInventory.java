@@ -1,56 +1,58 @@
 package me.niek1e.justinvsee.justinventory;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import me.niek1e.justinvsee.EffectsManager;
-import me.niek1e.justinvsee.JustInventoryManager;
-import me.niek1e.justinvsee.packets.InventoryName;
+import me.niek1e.justinvsee.JustInvSee;
 
 public class JustPlayerInventory extends JustInventory {
 
-	public JustPlayerInventory(Player targetPlayer, JustInventoryManager justInventoryManager) {
-		super(targetPlayer, justInventoryManager);
+	private JustInvSee plugin;
+
+	public JustPlayerInventory(Player targetPlayer, JustInvSee plugin) {
+		super(targetPlayer);
+		this.plugin = plugin;
 	}
 
 	@Override
 	protected Inventory createInventory() {
-		return this.getInventoryOwner().getInventory();
+		Inventory inventory = Bukkit.createInventory(null, 36, this.getInventoryOwner().getName() + "'s Inventory");
+		inventory.setStorageContents(this.getInventoryOwner().getInventory().getStorageContents());
+		return inventory;
 	}
 
 	@Override
 	public void openInventory(Player player, EffectsManager effectsManager) {
-		if (this.getInventoryView() != null)
-			return;
-
-		this.setInventoryViewer(player);
-		this.setInventoryView(player.openInventory(this.getInventory()));
-		sendInventoryPacket(player);
+		syncToInventory();
+		player.openInventory(this.getInventory());
 		effectsManager.playPlayerEffects(player, this.getInventoryOwner());
-
-		this.getInventoryOwner().updateInventory();
-		this.getJustInventoryManager().add(this);
 	}
 
 	@Override
 	public void openInventory(Player player) {
-		if (this.getInventoryView() != null)
-			return;
-
-		this.setInventoryViewer(player);
-		this.setInventoryView(player.openInventory(this.getInventory()));
-		sendInventoryPacket(player);
-
-		this.getInventoryOwner().updateInventory();
-		this.getJustInventoryManager().add(this);
+		syncToInventory();
+		player.openInventory(this.getInventory());
 	}
 
-	private void sendInventoryPacket(Player player) {
+	public void syncToOwner() {
+		Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+			public void run() {
+				ItemStack[] justInventoryContents = getInventory().getStorageContents();
+				getInventoryOwner().getInventory().setStorageContents(justInventoryContents);
+			}
+		}, 1L);
+	}
 
-		InventoryName inventoryNamePacket = InventoryName.getInventoryName(player, this.getInventoryOwner());
-		if(inventoryNamePacket != null)
-			inventoryNamePacket.sendPacket();
-
+	public void syncToInventory() {
+		Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+			public void run() {
+				ItemStack[] inventoryContents = getInventoryOwner().getInventory().getStorageContents();
+				getInventory().setStorageContents(inventoryContents);
+			}
+		}, 1L);
 	}
 
 }

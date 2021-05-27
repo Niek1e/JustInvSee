@@ -37,36 +37,36 @@ public class Message {
 		this.main = main;
 		this.content = constructMessage(messageType);
 	}
-	
+
 	public Message(JustInvSee main, MessageType messageType, String additionalInformation) {
 		this.main = main;
 		this.content = constructMessage(messageType, additionalInformation);
 	}
 
 	private String constructMessage(MessageType messageType) {
-		String content = messageType.getTextMessage(this.main);
-		return ChatColor.WHITE + PREFIX + " " + ChatColor.RED + content;
+		String newContent = messageType.getTextMessage(this.main);
+		return ChatColor.WHITE + PREFIX + " " + ChatColor.RED + newContent;
 	}
 
 	private String constructMessage(MessageType messageType, String additionalInformation) {
-		String content = messageType.getTextMessage(this.main);
+		String newContent = messageType.getTextMessage(this.main);
 		String message = null;
 
 		switch (messageType) {
 
 		case SETTING_CHANGED:
-			message = ChatColor.WHITE + PREFIX + " " + content + " " + additionalInformation;
+			message = ChatColor.WHITE + PREFIX + " " + newContent + " " + additionalInformation;
 			break;
 		case LOOKED_IN_INVENTORY:
-			message = ChatColor.WHITE + PREFIX + " " + ChatColor.GOLD + additionalInformation + " "
-					+ ChatColor.WHITE + content;
+			message = ChatColor.WHITE + PREFIX + " " + ChatColor.GOLD + additionalInformation + " " + ChatColor.WHITE
+					+ newContent;
 			break;
 		case PLAYER_LEFT:
-			message = ChatColor.WHITE + PREFIX + " " + ChatColor.GOLD + additionalInformation + " "
-					+ ChatColor.WHITE + content;
+			message = ChatColor.WHITE + PREFIX + " " + ChatColor.GOLD + additionalInformation + " " + ChatColor.WHITE
+					+ newContent;
 			break;
 		default:
-			message = ChatColor.WHITE + PREFIX + " " + content;
+			message = ChatColor.WHITE + PREFIX + " " + newContent;
 			break;
 
 		}

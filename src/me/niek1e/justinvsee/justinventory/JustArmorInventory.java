@@ -11,21 +11,20 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import me.niek1e.justinvsee.EffectsManager;
-import me.niek1e.justinvsee.JustInventoryManager;
+import me.niek1e.justinvsee.JustInvSee;
 
 public class JustArmorInventory extends JustInventory {
 
-	public JustArmorInventory(Player targetPlayer, JustInventoryManager justInventoryManager) {
-		super(targetPlayer, justInventoryManager);
+	private JustInvSee plugin;
+
+	public JustArmorInventory(Player targetPlayer, JustInvSee plugin) {
+		super(targetPlayer);
+		this.plugin = plugin;
 	}
 
-	public JustArmorInventory getUpdatedInventory(int actualSlot) {
-		return createUpdatedInventory(actualSlot);
-	}
-
-	private JustArmorInventory createUpdatedInventory(int actualSlot) {
+	public void update(int actualSlot) {
 		processUpdate(actualSlot);
-		return new JustArmorInventory(this.getInventoryOwner(), this.getJustInventoryManager());
+		syncToInventory();
 	}
 
 	private void processUpdate(int actualSlot) {
@@ -59,14 +58,16 @@ public class JustArmorInventory extends JustInventory {
 
 	@Override
 	protected Inventory createInventory() {
-		return createArmorInventory();
+
+		String name = getInventoryOwner().getName() + "'s Armor - JustInvSee (C)";
+		return Bukkit.getServer().createInventory(null, 18, name);
 	}
 
-	private Inventory createArmorInventory() {
+	private void updateArmorInventory() {
 
-		int size = 18;
-
-		Inventory armorInventory = Bukkit.getServer().createInventory(null, size, "Armor - JustInvSee (C)");
+		Inventory armorInventory = getInventory();
+		
+		armorInventory.clear();
 
 		ItemStack remove = getInventoryItem(Material.BARRIER, ChatColor.RED + "Clear Item");
 		ItemStack empty = getInventoryItem(Material.WHITE_STAINED_GLASS_PANE, ChatColor.RED + "[]");
@@ -79,7 +80,7 @@ public class JustArmorInventory extends JustInventory {
 		armorInventory.setItem(4, equipment.getBoots());
 		armorInventory.setItem(7, equipment.getItemInOffHand());
 
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < armorInventory.getSize(); i++) {
 
 			if (i > 8 && !armorInventory.getItem(i - 9).equals(empty))
 				armorInventory.setItem(i, remove);
@@ -88,8 +89,6 @@ public class JustArmorInventory extends JustInventory {
 				armorInventory.setItem(i, empty);
 
 		}
-
-		return armorInventory;
 	}
 
 	private ItemStack getInventoryItem(Material material, String name) {
@@ -106,25 +105,23 @@ public class JustArmorInventory extends JustInventory {
 
 	@Override
 	public void openInventory(Player player, EffectsManager effectsManager) {
-		if (this.getInventoryView() != null)
-			return;
-
-		this.setInventoryViewer(player);
-		this.setInventoryView(player.openInventory(this.getInventory()));
+		syncToInventory();
+		player.openInventory(this.getInventory());
 		effectsManager.playPlayerEffects(player, this.getInventoryOwner());
-
-		this.getJustInventoryManager().add(this);
 	}
 
 	@Override
 	public void openInventory(Player player) {
-		if (this.getInventoryView() != null)
-			return;
+		syncToInventory();
+		player.openInventory(this.getInventory());
+	}
 
-		this.setInventoryViewer(player);
-		this.setInventoryView(player.openInventory(this.getInventory()));
-
-		this.getJustInventoryManager().add(this);
+	public void syncToInventory() {
+		Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+			public void run() {
+				updateArmorInventory();
+			}
+		}, 1L);
 	}
 
 }

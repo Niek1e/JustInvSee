@@ -1,5 +1,4 @@
 language: EN
-auto-update: true
 opmessage: true
 
 lang:
@@ -13,7 +12,8 @@ lang:
     lookedinyourinv:  is looking in your inventory!
     messagetoggled: 'The setting has been changed to:'
     justinvseeusage: 'Usage: /justinvsee <setting>'
-    playerleft:
+    playerleft: The inventory was closed because the player left the game.
+    invalidtarget: You cannot use this command on yourself.
   NL:
     needop: Je moet OP zijn voor dit commando!
     onlyingame: Dat commando is alleen voor in-game spelers!
@@ -23,8 +23,9 @@ lang:
     playernotonline: Die speler is niet online!
     lookedinyourinv:  kijkt in je inventaris!
     messagetoggled: 'De instelling is aangepast naar:'
-    justinvseeusage: 'Usage: /justinvsee <setting>'
-    playerleft:
+    justinvseeusage: 'Doe: /justinvsee <instelling>'
+    playerleft: De inventory is gesloten omdat de speler het spel verlaten heeft.
+    invalidtarget: You cannot use this command on yourself.
   FR:
     needop: Vous devez OP pour cette commande!
     onlyingame: Cette commande est seulement pour les joueurs!
@@ -35,18 +36,20 @@ lang:
     lookedinyourinv:  regarde dans votre inventaire!
     messagetoggled: 'The setting has been changed to:'
     justinvseeusage: 'Usage: /justinvsee <setting>'
-    playerleft:
+    playerleft: The inventory was closed because the player left the game.
+    invalidtarget: You cannot use this command on yourself.
   DE:
-    needop: Du musst OP sein um diesen Befehl benutzen zu k
-    onlyingame: Dieser Befehl ist nur fInGame Spieler!
+    needop: Du musst OP sein um diesen Befehl benutzen zu konnen!
+    onlyingame: Dieser Befehl ist nur fur InGame Spieler!
     usage: 'Benutzung: /inv <Spieler>'
     enderusage: 'Benutzung: /enderinv <Spieler>'
     armorusage: 'Benutzung: /armorinv <Spieler>'
     playernotonline: Der Spieler ist nicht online!
     lookedinyourinv:  schaut sich dein Inventar an!
-    messagetoggled: 'The setting has been changed to:'
+    messagetoggled: 'Die Einstellung wurde geändert in:'
     justinvseeusage: 'Usage: /justinvsee <setting>'
-    playerleft:
+    playerleft: The inventory was closed because the player left the game.
+    invalidtarget: You cannot use this command on yourself.
   DK:
     needop: Du skal vOP for at bruge denne komando!
     onlyingame: Denne komando er kun for in-game spillere!
@@ -57,4 +60,5 @@ lang:
     lookedinyourinv:  kigger i din inventory!
     messagetoggled: 'The setting has been changed to:'
     justinvseeusage: 'Usage: /justinvsee <setting>'
-    playerleft:
+    playerleft: The inventory was closed because the player left the game.
+    invalidtarget: You cannot use this command on yourself.

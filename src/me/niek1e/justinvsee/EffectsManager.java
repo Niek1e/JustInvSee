@@ -10,16 +10,16 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 
 public class EffectsManager {
-	
+
 	public void playEnderchestEffects(Player player) {
 		createEnderChestEffects(player);
 	}
-	
+
 	public void playPlayerEffects(Player player, Player targetPlayer) {
 		Location location = targetPlayer.getLocation().add(0, 0.5, 0);
 		playPlayerEffects(player, location);
 	}
-	
+
 	private void createEnderChestEffects(Player player) {
 		Location playerLocation = player.getLocation();
 		Chunk[] chunks = getSurroundingChunks(playerLocation);
@@ -29,11 +29,11 @@ public class EffectsManager {
 			player.playEffect(enderChests.get(i), Effect.MOBSPAWNER_FLAMES, null);
 		}
 	}
-	
+
 	private void playPlayerEffects(Player player, Location location) {
 		player.playEffect(location, Effect.MOBSPAWNER_FLAMES, null);
 	}
-	
+
 	private Chunk[] getSurroundingChunks(Location location) {
 		int chunkX = location.getChunk().getX();
 		int chunkZ = location.getChunk().getZ();
@@ -50,7 +50,7 @@ public class EffectsManager {
 
 		return chunks;
 	}
-	
+
 	private ArrayList<Location> getEnderchestLocations(Chunk[] chunks) {
 		ArrayList<Location> enderchestLocations = new ArrayList<>();
 

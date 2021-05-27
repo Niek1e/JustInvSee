@@ -6,7 +6,8 @@ public enum MessageType {
 
 	NO_PERMISSION("needop"), PLAYERS_ONLY("onlyingame"), USAGE_INV("usage"), USAGE_ENDERINV("enderusage"),
 	USAGE_ARMORINV("armorusage"), USAGE_JUSTINVSEE("justinvseeusage"), PLAYER_NOT_FOUND("playernotonline"),
-	LOOKED_IN_INVENTORY("lookedinyourinv"), SETTING_CHANGED("messagetoggled"), PLAYER_LEFT("playerleft");
+	LOOKED_IN_INVENTORY("lookedinyourinv"), SETTING_CHANGED("messagetoggled"), PLAYER_LEFT("playerleft"),
+	INVALID_TARGET("invalidtarget");
 
 	private MessageType(String configCode) {
 		this.configCode = configCode;
@@ -32,7 +33,7 @@ public enum MessageType {
 			return MessageType.USAGE_JUSTINVSEE;
 
 		}
-		
+
 		return MessageType.USAGE_JUSTINVSEE;
 	}
 
